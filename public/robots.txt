@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://whispermail.app/sitemap.xml
+Sitemap: https://whisper-mail-five.vercel.app/sitemap.xml
