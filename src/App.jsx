@@ -41,29 +41,26 @@ export default function App() {
   const [petals, setPetals] = useState(false);
   const [loading, setLoading] = useState(true);  // for shared link
 
-  // On mount: check ?l=<id> and load the shared letter
+  // On mount: check #l=<encoded> and load the shared letter
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('l');
+    const hash = window.location.hash;
+    const match = hash.match(/^#l=(.+)/);
 
-    if (id) {
-      fetch(`/api/letters/${id}`)
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          if (data) {
-            setLetter(data.letter);
-            setTheme(data.theme || 'cream');
-            setStickers(data.stickers || []);
-            setScreen('envelope');
-          } else {
-            setLoading(false);
-          }
-        })
-        .catch(() => { })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+    if (match) {
+      try {
+        const decoded = decodeURIComponent(escape(atob(match[1])));
+        const data = JSON.parse(decoded);
+        if (data?.letter) {
+          setLetter(data.letter);
+          setTheme(data.theme || 'cream');
+          setStickers(data.stickers || []);
+          setScreen('envelope');
+        }
+      } catch (e) {
+        // malformed hash — just show landing
+      }
     }
+    setLoading(false);
   }, []);
 
   const addSticker = (char) => {

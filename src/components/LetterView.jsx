@@ -142,17 +142,18 @@ export default function LetterView({ letter, theme = 'cream', stickers, onReplay
 
     const advance = useCallback(() => setPhase(p => Math.min(p + 1, 4)), []);
 
-    const handleShare = async () => {
+    const handleShare = () => {
         if (shareLink) { setShowModal(true); return; }
         setSharing(true);
         try {
-            const res = await fetch('/api/letters', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ letter, theme, stickers }) });
-            const { id } = await res.json();
-            const link = `${window.location.origin}?l=${id}`;
+            const payload = JSON.stringify({ letter, theme, stickers });
+            const encoded = btoa(unescape(encodeURIComponent(payload)));
+            const link = `${window.location.origin}${window.location.pathname}#l=${encoded}`;
             setShareLink(link);
             setShowModal(true);
-        } catch { alert('Could not create share link. Is the server running?'); }
-        finally { setSharing(false); }
+        } catch (e) {
+            alert('Could not create share link.');
+        } finally { setSharing(false); }
     };
 
     const dateStr = letter.date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
